@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculateur Optique - Alerte Infini</title>
+    <style>
+        body { font-family: sans-serif; background: #050505; color: #eee; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 300px; background: #111; padding: 20px; border-right: 1px solid #333; display: flex; flex-direction: column; gap: 15px; }
+        .view { flex-grow: 1; background: #000; position: relative; }
+        canvas { width: 100%; height: 100%; display: block; }
+        .input-group { background: #1a1a1a; padding: 10px; border-radius: 8px; }
+        label { display: block; font-size: 0.8em; color: #888; margin-bottom: 5px; text-transform: uppercase; }
+        input { width: 100%; accent-color: #f1c40f; }
+        .results { background: #f1c40f; color: #000; padding: 15px; border-radius: 8px; font-weight: bold; margin-top: auto; transition: background 0.3s; }
+        .results.infinite { background: #e74c3c; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="input-group">
+        <label>Ouverture α (°)</label>
+        <input type="range" id="alphaRange" min="2" max="120" value="40">
+        <input type="number" id="alphaNum" value="40">
+    </div>
+    <div class="input-group">
+        <label>Hauteur h (m)</label>
+        <input type="range" id="hRange" min="1" max="20" step="0.1" value="7">
+        <input type="number" id="hNum" value="7">
+    </div>
+    <div class="input-group">
+        <label>Inclinaison (Tilt °)</label>
+        <input type="range" id="tiltRange" min="-80" max="80" value="30">
+        <input type="number" id="tiltNum" value="0">
+    </div>
+    <div id="resPanel" class="results">
+        <p>Largeur au sol : <span id="resDiam">--</span> m</p>
+        <p>Décalage (d) : <span id="resDecal">--</span> m</p>
+    </div>
+</div>
+
+<div class="view">
+    <canvas id="canvas"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const resPanel = document.getElementById('resPanel');
+
+    const ui = {
+        alpha: document.getElementById('alphaNum'),
+        h: document.getElementById('hNum'),
+        tilt: document.getElementById('tiltNum')
+    };
+
+    document.querySelectorAll('input').forEach(input => {
+        input.oninput = (e) => {
+            const id = e.target.id.replace('Range', 'Num').replace('Num', '');
+            document.getElementById(id+'Range').value = e.target.value;
+            document.getElementById(id+'Num').value = e.target.value;
+            update();
+        };
+    });
+
+    function update() {
+        const a = parseFloat(ui.alpha.value), h = parseFloat(ui.h.value), t = parseFloat(ui.tilt.value);
+        const aRad = a * Math.PI / 180, tRad = t * Math.PI / 180;
+
+        const angleGauche = tRad - aRad/2;
+        const angleDroit = tRad + aRad/2;
+
+        let x1, x2;
+        let isInfinite = false;
+        let textDiam = "--";
+        let textDecal = "--";
+
+        // Détection de l'infini
+        if (angleGauche <= -Math.PI / 2 || angleDroit >= Math.PI / 2) {
+            isInfinite = true;
+        }
+
+        // Gestion du Bord GAUCHE
+        if (angleGauche <= -Math.PI / 2) {
+            x1 = 2000; // Inversé visuellement pour le canvas
+            textDecal = "∞";
+        } else {
+            x1 = -h * Math.tan(angleGauche);
+            textDecal = (-x1).toFixed(2);
+        }
+
+        // Gestion du Bord DROIT
+        if (angleDroit >= Math.PI / 2) {
+            x2 = -2000; 
+            textDiam = "∞";
+        } else {
+            x2 = -h * Math.tan(angleDroit);
+        }
+
+        if (!isInfinite) {
+            textDiam = Math.abs(x2 - x1).toFixed(2);
+            resPanel.classList.remove('infinite');
+        } else {
+            textDiam = "∞";
+            resPanel.classList.add('infinite');
+        }
+
+        document.getElementById('resDiam').innerText = textDiam;
+        document.getElementById('resDecal').innerText = textDecal;
+
+        draw(h, aRad, tRad, x1, x2, isInfinite);
+    }   
+
+    function draw(h, aRad, tRad, x1, x2, isInfinite) {
+        canvas.width = canvas.clientWidth; 
+        canvas.height = canvas.clientHeight;
+        
+        const scale = Math.min(canvas.width / 30, canvas.height / (h + 5)) * 0.8;
+        const offsetX = canvas.width / 2;
+        const groundY = canvas.height - 80;
+        const startY = groundY - (h * scale);
+
+        // 1. LE SOL
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(canvas.width, groundY); ctx.stroke();
+
+        // 2. LA VERTICALE h
+        ctx.strokeStyle = "#444";
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath(); ctx.moveTo(offsetX, groundY); ctx.lineTo(offsetX, startY); ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 3. LE FAISCEAU (Couleur dynamique)
+        ctx.fillStyle = isInfinite ? "rgba(231, 76, 60, 0.5)" : "rgba(241, 196, 15, 0.4)";
+        ctx.beginPath();
+        ctx.moveTo(offsetX, startY); 
+        ctx.lineTo(offsetX + (x1 * scale), groundY); 
+        ctx.lineTo(offsetX + (x2 * scale), groundY); 
+        ctx.closePath();
+        ctx.fill();
+
+        // 4. LE PROJECTEUR
+        ctx.save();
+        ctx.translate(offsetX, startY);
+        ctx.rotate(tRad);
+        ctx.fillStyle = "#333";
+        ctx.fillRect(-15, -45, 30, 45); 
+        ctx.fillStyle = isInfinite ? "#e74c3c" : "#f1c40f"; // La lentille change aussi
+        ctx.fillRect(-15, -2, 30, 5); 
+        ctx.restore();
+
+        // Cotation hauteur
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "right";
+        ctx.fillText(h + "m", offsetX - 15, (startY + groundY) / 2);
+    }
+
+    update();
+</script>
+</body>
+</html>
