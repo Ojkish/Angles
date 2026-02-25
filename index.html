@@ -10,24 +10,27 @@
             --panel-color: #111;
             --accent-color: #f1c40f;
             --danger-color: #e74c3c;
+            --text-color: #eee;
         }
 
         body { 
             font-family: system-ui, -apple-system, sans-serif; 
             background: var(--bg-color); 
-            color: #eee; 
+            color: var(--text-color); 
             margin: 0; 
             display: flex; 
             height: 100vh; 
-            flex-direction: row; /* Défaut : Desktop */
+            flex-direction: row; 
             overflow: hidden; 
         }
 
-        /* Responsive : Empilement sur petits écrans */
+        /* Responsive : Mobile First pour le layout */
         @media (max-width: 768px) {
             body { flex-direction: column; overflow-y: auto; }
-            .sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid #333; order: 2; }
-            .view { height: 45vh; order: 1; flex-shrink: 0; }
+            .sidebar { width: 100% !important; border-right: none !important; order: 2; }
+            .view { height: 40vh; order: 1; flex-shrink: 0; }
+            /* Sur mobile, on veut les résultats tout en haut avant le graphique */
+            .results-container { order: 0; width: 100%; }
         }
 
         .sidebar { 
@@ -37,37 +40,65 @@
             border-right: 1px solid #333; 
             display: flex; 
             flex-direction: column; 
-            gap: 12px; 
+            gap: 15px; 
             box-sizing: border-box;
         }
 
-        .view { flex-grow: 1; background: #000; position: relative; min-height: 200px; }
+        /* Nouveau conteneur pour mettre les résultats en haut */
+        .results-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .view { flex-grow: 1; background: #000; position: relative; min-height: 250px; }
         canvas { width: 100%; height: 100%; display: block; }
 
-        .input-group { background: #1a1a1a; padding: 10px; border-radius: 8px; }
-        label { display: block; font-size: 0.75em; color: #888; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; }
+        .input-group { background: #1a1a1a; padding: 12px; border-radius: 8px; border: 1px solid #222; }
+        label { display: block; font-size: 0.75em; color: #888; margin-bottom: 8px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px; }
         
         .flex-input { display: flex; gap: 10px; align-items: center; }
-        input[type="range"] { flex-grow: 1; accent-color: var(--accent-color); }
-        input[type="number"] { width: 50px; background: #222; border: 1px solid #444; color: #fff; padding: 4px; border-radius: 4px; }
+        input[type="range"] { flex-grow: 1; accent-color: var(--accent-color); cursor: pointer; }
+        input[type="number"] { width: 55px; background: #222; border: 1px solid #444; color: #fff; padding: 6px; border-radius: 4px; font-weight: bold; }
 
         .results { 
             background: var(--accent-color); 
             color: #000; 
-            padding: 12px; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            margin-top: auto; 
-            transition: all 0.3s ease;
-            font-size: 0.9em;
+            padding: 18px; 
+            border-radius: 0 0 8px 8px; /* Arrondi seulement en bas car collé au haut sur mobile */
+            font-weight: 800; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
         }
-        .results.infinite { background: var(--danger-color); color: #fff; }
-        .results p { margin: 5px 0; display: flex; justify-content: space-between; }
+        
+        @media (min-width: 769px) {
+            .results { border-radius: 8px; }
+        }
+
+        .results.infinite { background: var(--danger-color); color: #fff; animation: pulse 2s infinite; }
+        .results p { margin: 8px 0; display: flex; justify-content: space-between; font-size: 1.1em; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 4px; }
+        .results.infinite p { border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .results span { font-family: monospace; font-size: 1.3em; }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
     </style>
 </head>
 <body>
 
+<div class="results-container" id="topResults">
+    <div id="resPanel" class="results">
+        <p>Largeur au sol : <span id="resDiam">--</span></p>
+        <p>Décalage (d) : <span id="resDecal">--</span></p>
+    </div>
+</div>
+
 <div class="sidebar">
+    <div id="sidebarTarget"></div>
+
     <div class="input-group">
         <label>Ouverture α (°)</label>
         <div class="flex-input">
@@ -86,12 +117,8 @@
         <label>Inclinaison (Tilt °)</label>
         <div class="flex-input">
             <input type="range" id="tiltRange" min="-80" max="80" value="0">
-            <input type="number" id="tiltNum" value="30">
+            <input type="number" id="tiltNum" value="0">
         </div>
-    </div>
-    <div id="resPanel" class="results">
-        <p>Largeur au sol : <span id="resDiam">--</span></p>
-        <p>Décalage (d) : <span id="resDecal">--</span></p>
     </div>
 </div>
 
@@ -103,6 +130,8 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const resPanel = document.getElementById('resPanel');
+    const sidebarTarget = document.getElementById('sidebarTarget');
+    const topResults = document.getElementById('topResults');
 
     const ui = {
         alpha: document.getElementById('alphaNum'),
@@ -110,7 +139,16 @@
         tilt: document.getElementById('tiltNum')
     };
 
-    // Liaison bidirectionnelle des inputs
+    // Gestion du déplacement du panneau de résultat selon la taille d'écran
+    function adjustLayout() {
+        if (window.innerWidth <= 768) {
+            if (resPanel.parentElement !== topResults) topResults.appendChild(resPanel);
+        } else {
+            if (resPanel.parentElement !== sidebarTarget) sidebarTarget.appendChild(resPanel);
+        }
+        update();
+    }
+
     document.querySelectorAll('input').forEach(input => {
         input.oninput = (e) => {
             const id = e.target.id.replace('Range', '').replace('Num', '');
@@ -120,8 +158,7 @@
         };
     });
 
-    // Redessiner si la fenêtre change de taille (rotation mobile)
-    window.onresize = update;
+    window.onresize = adjustLayout;
 
     function update() {
         const a = parseFloat(ui.alpha.value), h = parseFloat(ui.h.value), t = parseFloat(ui.tilt.value);
@@ -133,13 +170,11 @@
         let x1, x2;
         let isInfinite = (angleGauche <= -Math.PI / 2 || angleDroit >= Math.PI / 2);
         
-        // Calculs des positions au sol
         x1 = (angleGauche <= -Math.PI / 2) ? 5000 : -h * Math.tan(angleGauche);
         x2 = (angleDroit >= Math.PI / 2) ? -5000 : -h * Math.tan(angleDroit);
 
-        // Mise à jour de l'affichage texte
-        const displayDiam = isInfinite ? "∞" : Math.abs(x2 - x1).toFixed(2) + " m";
-        const displayDecal = (angleGauche <= -Math.PI / 2) ? "∞" : (-x1).toFixed(2) + " m";
+        const displayDiam = isInfinite ? "∞" : Math.abs(x2 - x1).toFixed(2) + "m";
+        const displayDecal = (angleGauche <= -Math.PI / 2) ? "∞" : (-x1).toFixed(2) + "m";
 
         document.getElementById('resDiam').innerText = displayDiam;
         document.getElementById('resDecal').innerText = displayDecal;
@@ -150,11 +185,10 @@
         draw(h, tRad, x1, x2, isInfinite);
     }   
 
-    function draw(h, tRad, x1, x2, isInfinite) {
+function draw(h, tRad, x1, x2, isInfinite) {
         canvas.width = canvas.clientWidth; 
         canvas.height = canvas.clientHeight;
         
-        // Echelle adaptative : on s'adapte à la largeur du canvas (important sur mobile vertical)
         const scale = Math.min(canvas.width / 25, canvas.height / (h + 4));
         const offsetX = canvas.width / 2;
         const groundY = canvas.height - 40;
@@ -162,12 +196,22 @@
 
         ctx.clearRect(0,0, canvas.width, canvas.height);
 
-        // 1. SOL
+        // SOL
         ctx.strokeStyle = "#444"; ctx.lineWidth = 1;
+        ctx.setLineDash([]); // Ligne pleine pour le sol
         ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(canvas.width, groundY); ctx.stroke();
 
-        // 2. FAISCEAU
-        ctx.fillStyle = isInfinite ? "rgba(231, 76, 60, 0.4)" : "rgba(241, 196, 15, 0.35)";
+        // NOUVEAU : AXE VERTICAL (Pointillés)
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+        ctx.setLineDash([5, 5]); // Définit des tirets de 5px et des espaces de 5px
+        ctx.beginPath();
+        ctx.moveTo(offsetX, startY);
+        ctx.lineTo(offsetX, groundY);
+        ctx.stroke();
+        ctx.setLineDash([]); // On réinitialise pour la suite
+
+        // FAISCEAU
+        ctx.fillStyle = isInfinite ? "rgba(231, 76, 60, 0.45)" : "rgba(241, 196, 15, 0.35)";
         ctx.beginPath();
         ctx.moveTo(offsetX, startY); 
         ctx.lineTo(offsetX + (x1 * scale), groundY); 
@@ -175,7 +219,7 @@
         ctx.closePath();
         ctx.fill();
 
-        // 3. PROJECTEUR
+        // PROJECTEUR
         ctx.save();
         ctx.translate(offsetX, startY);
         ctx.rotate(tRad);
@@ -185,14 +229,14 @@
         ctx.fillRect(-12, -2, 24, 4); 
         ctx.restore();
 
-        // 4. INFOS HAUTEUR
+        // INFOS HAUTEUR
         ctx.fillStyle = "#888";
-        ctx.font = "12px sans-serif";
+        ctx.font = "bold 12px sans-serif";
         ctx.textAlign = "right";
         ctx.fillText(h + "m", offsetX - 10, (startY + groundY) / 2);
     }
-
-    update();
+    // Initialisation
+    adjustLayout();
 </script>
 </body>
 </html>
