@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur d'Angles - Corrigé</title>
+    <title>Angles</title>
     <style>
         :root {
             --bg-color: #050505;
@@ -164,6 +164,18 @@
 document.querySelectorAll('input[type="number"]').forEach(input => {
     input.addEventListener('focus', function() {
         this.select();
+    });
+});
+
+// Correction mobile : remonter le champ au focus
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('focus', function () {
+        setTimeout(() => {
+            this.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }, 300); // délai pour laisser le clavier apparaître
     });
 });
 
