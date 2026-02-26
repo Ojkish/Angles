@@ -1,328 +1,309 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Angles</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Angles — contrôle par décalage</title>
 <style>
-:root {
-    --bg-color: #050505;
-    --panel-color: #111;
-    --accent-color: #f1c40f;
-    --danger-color: #e74c3c;
-    --text-color: #eee;
+:root{
+  --bg-color:#050505;
+  --panel-color:#111;
+  --accent-color:#f1c40f;
+  --danger-color:#e74c3c;
+  --text-color:#eee;
 }
-
-body {
-    font-family: system-ui, -apple-system, sans-serif;
-    background: var(--bg-color);
-    color: var(--text-color);
-    margin: 0;
-    display: flex;
-    min-height: 100dvh;
-    flex-direction: column;
-    overflow-x: hidden;
-    overflow-y: auto;
+body{
+  font-family:system-ui,-apple-system, sans-serif;
+  background:var(--bg-color);
+  color:var(--text-color);
+  margin:0;
+  display:flex;
+  min-height:100dvh;
+  flex-direction:column;
+  overflow-x:hidden;
+  overflow-y:auto;
 }
-
-@media (max-width: 768px) {
-    body { flex-direction: column; overflow-y: auto; }
-    .sidebar { width: 100% !important; border-right: none !important; order: 2; padding: 10px !important; }
-    .view { height: 45vh; order: 1; flex-shrink: 0; }
-    .results-container { order: 0; width: 100%; }
+@media (max-width:768px){
+  body{flex-direction:column;overflow-y:auto;}
+  .sidebar{width:100% !important;border-right:none !important;order:2;padding:10px !important;}
+  .view{height:45vh;order:1;flex-shrink:0;}
+  .results-container{order:0;width:100%;}
 }
-
-.sidebar {
-    width: 300px;
-    background: var(--panel-color);
-    padding: 12px;
-    border-right: 1px solid #333;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    box-sizing: border-box;
+.sidebar{
+  width:300px;
+  background:var(--panel-color);
+  padding:12px;
+  border-right:1px solid #333;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  box-sizing:border-box;
 }
-
-.results-container { display: flex; flex-direction: column; }
-.view { flex-grow: 1; background: #000; position: relative; min-height: 250px; }
-canvas { width: 100%; height: 100%; display: block; }
-
-.input-group {
-    background: #1a1a1a;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #222;
+.results-container{display:flex;flex-direction:column;}
+.view{flex-grow:1;background:#000;position:relative;min-height:250px;}
+canvas{width:100%;height:100%;display:block;}
+.input-group{
+  background:#1a1a1a;padding:8px 12px;border-radius:8px;border:1px solid #222;
 }
-
-label {
-    display: block;
-    font-size: 0.7em;
-    color: #888;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-    font-weight: bold;
-    letter-spacing: 0.5px;
+label{
+  display:block;font-size:0.7em;color:#888;margin-bottom:4px;text-transform:uppercase;font-weight:bold;letter-spacing:0.5px;
 }
-
-.flex-input { display: flex; gap: 10px; align-items: center; }
-input[type="range"] { flex-grow: 1; accent-color: var(--accent-color); cursor: pointer; }
-input[type="number"] {
-    width: 50px;
-    background: #222;
-    border: 1px solid #444;
-    color: #fff;
-    padding: 4px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 0.9em;
+.flex-input{display:flex;gap:10px;align-items:center;}
+input[type="range"]{flex-grow:1;accent-color:var(--accent-color);cursor:pointer;}
+input[type="number"]{
+  width:70px;background:#222;border:1px solid #444;color:#fff;padding:4px;border-radius:4px;font-weight:bold;font-size:0.9em;
 }
-
-.results {
-    background: var(--accent-color);
-    color: #000;
-    padding: 15px;
-    border-radius: 8px;
-    font-weight: 800;
-    margin-bottom: 5px;
+.results{
+  background:var(--accent-color);color:#000;padding:15px;border-radius:8px;font-weight:800;margin-bottom:5px;
 }
-
-.results.infinite { background: var(--danger-color); color: #fff; }
-.results p { margin: 5px 0; display: flex; justify-content: space-between; font-size: 1em; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; }
-.results span { font-family: monospace; font-size: 1.2em; }
+.results.infinite{background:var(--danger-color);color:#fff;}
+.results p{margin:5px 0;display:flex;justify-content:space-between;font-size:1em;border-bottom:1px solid rgba(0,0,0,0.1);padding-bottom:2px;}
+.results span{font-family:monospace;font-size:1.2em;}
+.info-small{font-weight:600;color:#111;background:transparent;border-radius:4px;padding:2px 6px;}
 </style>
 </head>
 <body>
 
 <div class="results-container" id="topResults">
-    <div id="resPanel" class="results">
-        <p>Largeur au sol : <span id="resDiam">--</span></p>
-        <p>Décalage (d) : <span id="resDecal">--</span></p>
-    </div>
+  <div id="resPanel" class="results">
+    <p>Largeur au sol : <span id="resDiam">--</span></p>
+    <p>Inclinaison (tilt) : <span id="resTilt">--</span></p>
+  </div>
 </div>
 
 <div class="sidebar">
-    <div id="sidebarTarget"></div>
+  <div id="sidebarTarget"></div>
 
-    <div class="input-group">
-        <label>Ouverture α (°)</label>
-        <div class="flex-input">
-            <input type="range" id="alphaRange" min="1" max="120" value="40">
-            <input type="number" step="any" id="alphaNum" value="40">
-        </div>
+  <div class="input-group">
+    <label>Ouverture α (°)</label>
+    <div class="flex-input">
+      <input type="range" id="alphaRange" min="1" max="120" value="40">
+      <input type="number" step="any" id="alphaNum" value="40">
     </div>
+  </div>
 
-    <div class="input-group">
-        <label>Hauteur h (m)</label>
-        <div class="flex-input">
-            <input type="range" id="hRange" min="1" max="20" step="0.1" value="7">
-            <input type="number" step="any" id="hNum" value="7">
-        </div>
+  <div class="input-group">
+    <label>Hauteur h (m)</label>
+    <div class="flex-input">
+      <input type="range" id="hRange" min="1" max="20" step="0.1" value="7">
+      <input type="number" step="any" id="hNum" value="7">
     </div>
+  </div>
 
-    <div class="input-group">
-        <label>Inclinaison (Tilt °)</label>
-        <div class="flex-input">
-            <input type="range" id="tiltRange" min="-80" max="80" step="any" value="0">
-            <input type="number" step="any" id="tiltNum" value="0">
-        </div>
+  <div class="input-group">
+    <label>Décalage (d) (m)</label>
+    <div class="flex-input">
+      <input type="range" id="decalRange" min="-30" max="30" step="0.01" value="0">
+      <input type="number" step="any" id="decalNum" value="0">
     </div>
+  </div>
 </div>
 
 <div class="view">
-    <canvas id="canvas"></canvas>
+  <canvas id="canvas"></canvas>
 </div>
 
 <script>
+/* === DOM references === */
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+
 const resPanel = document.getElementById('resPanel');
-const sidebarTarget = document.getElementById('sidebarTarget');
 const topResults = document.getElementById('topResults');
+const sidebarTarget = document.getElementById('sidebarTarget');
 
-// number inputs (user-editable, accept any numeric value)
-const alphaNum = document.getElementById('alphaNum');
-const hNum = document.getElementById('hNum');
-const tiltNum = document.getElementById('tiltNum');
-
-// range inputs (limited)
 const alphaRange = document.getElementById('alphaRange');
 const hRange = document.getElementById('hRange');
-const tiltRange = document.getElementById('tiltRange');
+const decalRange = document.getElementById('decalRange');
 
-// last valid numeric values used for calculations (to avoid NaN while user types)
+const alphaNum = document.getElementById('alphaNum');
+const hNum = document.getElementById('hNum');
+const decalNum = document.getElementById('decalNum');
+
+const resDiam = document.getElementById('resDiam');
+const resTilt = document.getElementById('resTilt');
+
+/* === last valid numeric values used for drawing (robust while typing) === */
 const lastValid = {
-    alpha: parseFloat(alphaNum.value) || 40,
-    h: parseFloat(hNum.value) || 7,
-    tilt: parseFloat(tiltNum.value) || 0
+  alpha: toNumberFromInputString(alphaNum.value) || 40,
+  h: toNumberFromInputString(hNum.value) || 7,
+  decal: toNumberFromInputString(decalNum.value) || 0
 };
 
-// responsive placement of result panel
-function adjustLayout() {
-    if (window.innerWidth <= 768) {
-        if (resPanel.parentElement !== topResults) topResults.appendChild(resPanel);
-    } else {
-        if (resPanel.parentElement !== sidebarTarget) sidebarTarget.appendChild(resPanel);
-    }
-    update(); // redraw on layout change
+/* === responsive placement === */
+function adjustLayout(){
+  if (window.innerWidth <= 768){
+    if (resPanel.parentElement !== topResults) topResults.appendChild(resPanel);
+  } else {
+    if (resPanel.parentElement !== sidebarTarget) sidebarTarget.appendChild(resPanel);
+  }
+  update();
 }
 window.addEventListener('resize', adjustLayout);
 
-// ---- Helpers ----
-function toNumberFromInputString(str) {
-    if (typeof str !== 'string') return NaN;
-    // accept comma as decimal separator
-    const normalized = str.replace(',', '.').trim();
-    // allow leading/trailing plus/minus, scientific notation etc via parseFloat
-    const n = parseFloat(normalized);
-    return isFinite(n) ? n : NaN;
+/* === helpers === */
+function toNumberFromInputString(str){
+  if (typeof str !== 'string' && typeof str !== 'number') return NaN;
+  const s = (''+str).replace(',', '.').trim();
+  const n = parseFloat(s);
+  return isFinite(n) ? n : NaN;
+}
+function isWithinRange(val, rangeEl){
+  const min = parseFloat(rangeEl.min);
+  const max = parseFloat(rangeEl.max);
+  if (isNaN(min) || isNaN(max)) return false;
+  return val >= min && val <= max;
 }
 
-// clamp check (returns true if within range inclusive)
-function isWithinRange(val, rangeEl) {
-    const min = parseFloat(rangeEl.min);
-    const max = parseFloat(rangeEl.max);
-    return !(isNaN(min) || isNaN(max)) && (val >= min && val <= max);
-}
-
-// ---- Range -> Number synchronization (range always enforces limits) ----
+/* === Range -> Number sync (range enforces limits) === */
 alphaRange.addEventListener('input', () => {
-    alphaNum.value = alphaRange.value;
-    lastValid.alpha = parseFloat(alphaRange.value);
-    update();
+  alphaNum.value = alphaRange.value;
+  lastValid.alpha = parseFloat(alphaRange.value);
+  update();
 });
 hRange.addEventListener('input', () => {
-    hNum.value = hRange.value;
-    lastValid.h = parseFloat(hRange.value);
-    update();
+  hNum.value = hRange.value;
+  lastValid.h = parseFloat(hRange.value);
+  update();
 });
-tiltRange.addEventListener('input', () => {
-    tiltNum.value = tiltRange.value;
-    lastValid.tilt = parseFloat(tiltRange.value);
-    update();
+decalRange.addEventListener('input', () => {
+  decalNum.value = decalRange.value;
+  lastValid.decal = parseFloat(decalRange.value);
+  update();
 });
 
-// ---- Number inputs handling: accept any numeric value, but only sync range if in-range ----
-function handleNumberInput(numEl, rangeEl, keyName) {
-    // input event: user typing
-    numEl.addEventListener('input', (e) => {
-        const raw = e.target.value;
-        const n = toNumberFromInputString(raw);
+/* === Number inputs: accept any numeric value; only sync slider if value in slider's range === */
+function bindNumberInput(numEl, rangeEl, keyName){
+  numEl.addEventListener('input', (e) => {
+    const raw = e.target.value;
+    const n = toNumberFromInputString(raw);
+    if (!isNaN(n)){
+      lastValid[keyName] = n;
+      if (rangeEl && isWithinRange(n, rangeEl)){
+        rangeEl.value = n;
+      }
+    }
+    update();
+  });
 
-        if (!isNaN(n)) {
-            // update last valid numeric (used for calculations)
-            lastValid[keyName] = n;
-            // if within slider limits, sync the slider; otherwise leave slider unchanged
-            if (isWithinRange(n, rangeEl)) {
-                rangeEl.value = n;
-            }
-        }
-        // if NaN (empty or invalid), do not update lastValid — keep previous value used for drawing
-        update(); // always call update so user sees current drawing (based on lastValid)
-    });
+  numEl.addEventListener('focus', function(){
+    try { this.select(); } catch (err) {}
+    setTimeout(()=>{ this.scrollIntoView({behavior:'smooth', block:'center'}); }, 300);
+  });
 
-    // focus behavior (select + scroll on mobile)
-    numEl.addEventListener('focus', function() {
-        // select text to ease editing
-        try { this.select(); } catch (err) {}
-        // scroll into view after slight delay (keyboard popup)
-        setTimeout(() => {
-            this.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
-    });
-
-    // blur: normalize decimal comma to point for display (keeps user's digits but uses dot)
-    numEl.addEventListener('blur', (e) => {
-        const raw = e.target.value;
-        if (raw === '') return; // keep blank if user left it blank
-        const n = toNumberFromInputString(raw);
-        if (!isNaN(n)) {
-            // format minimally: keep raw's precision by avoiding toFixed; show as-is numeric
-            // but prefer a simple string representation
-            e.target.value = ('' + n);
-        }
-    });
+  numEl.addEventListener('blur', (e) => {
+    const raw = e.target.value;
+    if (raw === '') return;
+    const n = toNumberFromInputString(raw);
+    if (!isNaN(n)){
+      e.target.value = '' + n;
+    }
+  });
 }
 
-handleNumberInput(alphaNum, alphaRange, 'alpha');
-handleNumberInput(hNum, hRange, 'h');
-handleNumberInput(tiltNum, tiltRange, 'tilt');
+bindNumberInput(alphaNum, alphaRange, 'alpha');
+bindNumberInput(hNum, hRange, 'h');
+bindNumberInput(decalNum, decalRange, 'decal');
 
-// ---- Calculation & drawing ----
-function update() {
-    // use lastValid numeric values for calculations (robust while user types)
-    const a = Number(lastValid.alpha);
-    const h = Number(lastValid.h);
-    const t = Number(lastValid.tilt);
+/* === Initial decal from defaults (keeps UI stable for old users) === */
+(function initializeDecalFromDefaults(){
+  const a0 = toNumberFromInputString(alphaNum.value) || lastValid.alpha;
+  const h0 = toNumberFromInputString(hNum.value) || lastValid.h;
+  const t0 = 0;
+  const aRad0 = a0 * Math.PI / 180;
+  const angleGauche0 = t0 * Math.PI / 180 - aRad0/2;
+  const d0 = h0 * Math.tan(angleGauche0);
+  lastValid.decal = isFinite(d0) ? d0 : 0;
+  decalNum.value = '' + lastValid.decal;
+  if (isWithinRange(lastValid.decal, decalRange)){
+    decalRange.value = lastValid.decal;
+  }
+})();
 
-    const aRad = a * Math.PI / 180;
-    const tRad = t * Math.PI / 180;
+/* === Core calculation & drawing ===
+   User controls decal 'd'. From d, a and h we compute:
+     angleGauche = atan2(d, h)
+     angleDroit = angleGauche + aRad
+     tilt tRad = angleGauche + aRad/2
+*/
+function update(){
+  const a = Number(lastValid.alpha);
+  const h = Number(lastValid.h);
+  const d = Number(lastValid.decal);
 
-    const angleGauche = tRad - aRad / 2;
-    const angleDroit = tRad + aRad / 2;
+  const aRad = (isFinite(a) ? a * Math.PI / 180 : 0);
+  const hNumVal = (isFinite(h) ? h : 0);
+  const dNumVal = (isFinite(d) ? d : 0);
 
-    let x1, x2;
-    const isInfinite = (angleGauche <= -Math.PI / 2 || angleDroit >= Math.PI / 2);
+  const angleGauche = Math.atan2(dNumVal, hNumVal);
+  const angleDroit = angleGauche + aRad;
+  const tRad = angleGauche + aRad/2;
+  const tDeg = (tRad * 180 / Math.PI);
 
-    x1 = (angleGauche <= -Math.PI / 2) ? 5000 : -h * Math.tan(angleGauche);
-    x2 = (angleDroit >= Math.PI / 2) ? -5000 : -h * Math.tan(angleDroit);
+  const EPS = 1e-12;
+  const isInfinite = (angleGauche <= -Math.PI/2 + EPS) || (angleDroit >= Math.PI/2 - EPS);
 
-    document.getElementById('resDiam').innerText = isInfinite ? "∞" : Math.abs(x2 - x1).toFixed(2) + "m";
-    document.getElementById('resDecal').innerText = (angleGauche <= -Math.PI / 2) ? "∞" : (-x1).toFixed(2) + "m";
+  const x1 = -dNumVal;
+  let x2;
+  if (angleDroit >= Math.PI/2 - EPS){
+    x2 = -5000;
+  } else {
+    x2 = -hNumVal * Math.tan(angleDroit);
+  }
 
-    if (isInfinite) resPanel.classList.add('infinite');
-    else resPanel.classList.remove('infinite');
+  resDiam.innerText = isInfinite ? "∞" : Math.abs(x2 - x1).toFixed(2) + "m";
+  resTilt.innerText = isFinite(tDeg) ? (tDeg.toFixed(2) + "°") : "NaN";
 
-    draw(h, tRad, x1, x2, isInfinite);
+  if (isInfinite) resPanel.classList.add('infinite');
+  else resPanel.classList.remove('infinite');
+
+  draw(hNumVal, tRad, x1, x2, isInfinite);
 }
 
-function draw(h, tRad, x1, x2, isInfinite) {
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
+/* === draw (unchanged visual behavior) === */
+function draw(h, tRad, x1, x2, isInfinite){
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
 
-    const scale = Math.min(canvas.width / (h + 5), canvas.height / 20);
-    const startX = 60;
-    const centerY = canvas.height / 2;
-    const groundX = startX + (h * scale);
+  const scale = Math.min(canvas.width / (Math.max(h, 0) + 5), canvas.height / 20);
+  const startX = 60;
+  const centerY = canvas.height / 2;
+  const groundX = startX + (h * scale);
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    // SOL
-    ctx.strokeStyle = "#444"; ctx.lineWidth = 1;
-    ctx.setLineDash([]);
-    ctx.beginPath(); ctx.moveTo(groundX, 0); ctx.lineTo(groundX, canvas.height); ctx.stroke();
+  ctx.strokeStyle = "#444"; ctx.lineWidth = 1;
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(groundX,0); ctx.lineTo(groundX,canvas.height); ctx.stroke();
 
-    // AXE POINTILLÉ
-    ctx.strokeStyle = "rgba(255,255,255,0.2)";
-    ctx.setLineDash([5,5]);
-    ctx.beginPath(); ctx.moveTo(startX, centerY); ctx.lineTo(groundX, centerY); ctx.stroke();
-    ctx.setLineDash([]);
+  ctx.strokeStyle = "rgba(255,255,255,0.2)";
+  ctx.setLineDash([5,5]);
+  ctx.beginPath(); ctx.moveTo(startX, centerY); ctx.lineTo(groundX, centerY); ctx.stroke();
+  ctx.setLineDash([]);
 
-    // FAISCEAU
-    ctx.fillStyle = isInfinite ? "rgba(231,76,60,0.45)" : "rgba(241,196,15,0.35)";
-    ctx.beginPath();
-    ctx.moveTo(startX, centerY);
-    ctx.lineTo(groundX, centerY + (x1 * scale));
-    ctx.lineTo(groundX, centerY + (x2 * scale));
-    ctx.closePath();
-    ctx.fill();
+  ctx.fillStyle = isInfinite ? "rgba(231,76,60,0.45)" : "rgba(241,196,15,0.35)";
+  ctx.beginPath();
+  ctx.moveTo(startX, centerY);
+  ctx.lineTo(groundX, centerY + (x1 * scale));
+  ctx.lineTo(groundX, centerY + (x2 * scale));
+  ctx.closePath();
+  ctx.fill();
 
-    // PROJECTEUR
-    ctx.save();
-    ctx.translate(startX, centerY);
-    ctx.rotate(-tRad);
-    ctx.fillStyle = "#333"; ctx.fillRect(-35, -12, 35, 24);
-    ctx.fillStyle = isInfinite ? "#e74c3c" : "#f1c40f";
-    ctx.fillRect(-2, -12, 4, 24);
-    ctx.restore();
+  ctx.save();
+  ctx.translate(startX, centerY);
+  ctx.rotate(-tRad);
+  ctx.fillStyle = "#333"; ctx.fillRect(-35, -12, 35, 24);
+  ctx.fillStyle = isInfinite ? "#e74c3c" : "#f1c40f";
+  ctx.fillRect(-2, -12, 4, 24);
+  ctx.restore();
 
-    // TEXTE HAUTEUR
-    ctx.fillStyle = "#888";
-    ctx.font = "bold 13px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("h = " + h + "m", (startX + groundX) / 2, centerY - 15);
+  ctx.fillStyle = "#888";
+  ctx.font = "bold 13px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("h = " + h + "m", (startX + groundX)/2, centerY - 15);
 }
 
-// initialize layout and drawing
+/* === kickoff === */
 adjustLayout();
 </script>
 </body>
