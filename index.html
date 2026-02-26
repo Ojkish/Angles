@@ -159,6 +159,13 @@
         };
     });
 
+// Auto-sélection du texte au clic (uniquement champs number)
+document.querySelectorAll('input[type="number"]').forEach(input => {
+    input.addEventListener('focus', function() {
+        this.select();
+    });
+});
+
     window.onresize = adjustLayout;
 
     function update() {
