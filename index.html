@@ -1,95 +1,95 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Angles</title>
-    <style>
-        :root {
-            --bg-color: #050505;
-            --panel-color: #111;
-            --accent-color: #f1c40f;
-            --danger-color: #e74c3c;
-            --text-color: #eee;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Angles</title>
+<style>
+:root {
+    --bg-color: #050505;
+    --panel-color: #111;
+    --accent-color: #f1c40f;
+    --danger-color: #e74c3c;
+    --text-color: #eee;
+}
 
-        body { 
-            font-family: system-ui, -apple-system, sans-serif; 
-            background: var(--bg-color); 
-            color: var(--text-color); 
-            margin: 0; 
-            display: flex; 
-            min-height: 100dvh;
-            flex-direction: column; 
-            overflow-x: hidden;
-            overflow-y: auto;            
-        }
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    min-height: 100dvh;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
 
-        @media (max-width: 768px) {
-            body { flex-direction: column; overflow-y: auto; }
-            .sidebar { width: 100% !important; border-right: none !important; order: 2; padding: 10px !important; }
-            .view { height: 45vh; order: 1; flex-shrink: 0; }
-            .results-container { order: 0; width: 100%; }
-        }
+@media (max-width: 768px) {
+    body { flex-direction: column; overflow-y: auto; }
+    .sidebar { width: 100% !important; border-right: none !important; order: 2; padding: 10px !important; }
+    .view { height: 45vh; order: 1; flex-shrink: 0; }
+    .results-container { order: 0; width: 100%; }
+}
 
-        .sidebar { 
-            width: 300px; 
-            background: var(--panel-color); 
-            padding: 12px; 
-            border-right: 1px solid #333; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 8px; 
-            box-sizing: border-box;
-        }
+.sidebar {
+    width: 300px;
+    background: var(--panel-color);
+    padding: 12px;
+    border-right: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+}
 
-        .results-container { display: flex; flex-direction: column; }
-        .view { flex-grow: 1; background: #000; position: relative; min-height: 250px; }
-        canvas { width: 100%; height: 100%; display: block; }
+.results-container { display: flex; flex-direction: column; }
+.view { flex-grow: 1; background: #000; position: relative; min-height: 250px; }
+canvas { width: 100%; height: 100%; display: block; }
 
-        .input-group { 
-            background: #1a1a1a; 
-            padding: 8px 12px; 
-            border-radius: 8px; 
-            border: 1px solid #222; 
-        }
+.input-group {
+    background: #1a1a1a;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #222;
+}
 
-        label { 
-            display: block; 
-            font-size: 0.7em; 
-            color: #888; 
-            margin-bottom: 4px; 
-            text-transform: uppercase; 
-            font-weight: bold; 
-            letter-spacing: 0.5px; 
-        }
-        
-        .flex-input { display: flex; gap: 10px; align-items: center; }
-        input[type="range"] { flex-grow: 1; accent-color: var(--accent-color); cursor: pointer; }
-        input[type="number"] { 
-            width: 50px; 
-            background: #222; 
-            border: 1px solid #444; 
-            color: #fff; 
-            padding: 4px; 
-            border-radius: 4px; 
-            font-weight: bold; 
-            font-size: 0.9em;
-        }
+label {
+    display: block;
+    font-size: 0.7em;
+    color: #888;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
 
-        .results { 
-            background: var(--accent-color); 
-            color: #000; 
-            padding: 15px; 
-            border-radius: 8px;
-            font-weight: 800; 
-            margin-bottom: 5px;
-        }
-        
-        .results.infinite { background: var(--danger-color); color: #fff; }
-        .results p { margin: 5px 0; display: flex; justify-content: space-between; font-size: 1em; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; }
-        .results span { font-family: monospace; font-size: 1.2em; }
-    </style>
+.flex-input { display: flex; gap: 10px; align-items: center; }
+input[type="range"] { flex-grow: 1; accent-color: var(--accent-color); cursor: pointer; }
+input[type="number"] {
+    width: 50px;
+    background: #222;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 4px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.results {
+    background: var(--accent-color);
+    color: #000;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.results.infinite { background: var(--danger-color); color: #fff; }
+.results p { margin: 5px 0; display: flex; justify-content: space-between; font-size: 1em; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 2px; }
+.results span { font-family: monospace; font-size: 1.2em; }
+</style>
 </head>
 <body>
 
@@ -102,25 +102,28 @@
 
 <div class="sidebar">
     <div id="sidebarTarget"></div>
+
     <div class="input-group">
         <label>Ouverture α (°)</label>
         <div class="flex-input">
             <input type="range" id="alphaRange" min="2" max="120" value="40">
-            <input type="number" id="alphaNum" value="40">
+            <input type="number" step="any" id="alphaNum" value="40">
         </div>
     </div>
+
     <div class="input-group">
         <label>Hauteur h (m)</label>
         <div class="flex-input">
             <input type="range" id="hRange" min="1" max="20" step="0.1" value="7">
-            <input type="number" id="hNum" value="7">
+            <input type="number" step="any" id="hNum" value="7">
         </div>
     </div>
+
     <div class="input-group">
         <label>Inclinaison (Tilt °)</label>
         <div class="flex-input">
-            <input type="range" id="tiltRange" min="-80" max="80" value="0">
-            <input type="number" id="tiltNum" value="0">
+            <input type="range" id="tiltRange" min="-80" max="80" step="any" value="0">
+            <input type="number" step="any" id="tiltNum" value="0">
         </div>
     </div>
 </div>
@@ -130,140 +133,197 @@
 </div>
 
 <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const resPanel = document.getElementById('resPanel');
-    const sidebarTarget = document.getElementById('sidebarTarget');
-    const topResults = document.getElementById('topResults');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const resPanel = document.getElementById('resPanel');
+const sidebarTarget = document.getElementById('sidebarTarget');
+const topResults = document.getElementById('topResults');
 
-    const ui = {
-        alpha: document.getElementById('alphaNum'),
-        h: document.getElementById('hNum'),
-        tilt: document.getElementById('tiltNum')
-    };
+// number inputs (user-editable, accept any numeric value)
+const alphaNum = document.getElementById('alphaNum');
+const hNum = document.getElementById('hNum');
+const tiltNum = document.getElementById('tiltNum');
 
-    function adjustLayout() {
-        if (window.innerWidth <= 768) {
-            if (resPanel.parentElement !== topResults) topResults.appendChild(resPanel);
-        } else {
-            if (resPanel.parentElement !== sidebarTarget) sidebarTarget.appendChild(resPanel);
+// range inputs (limited)
+const alphaRange = document.getElementById('alphaRange');
+const hRange = document.getElementById('hRange');
+const tiltRange = document.getElementById('tiltRange');
+
+// last valid numeric values used for calculations (to avoid NaN while user types)
+const lastValid = {
+    alpha: parseFloat(alphaNum.value) || 40,
+    h: parseFloat(hNum.value) || 7,
+    tilt: parseFloat(tiltNum.value) || 0
+};
+
+// responsive placement of result panel
+function adjustLayout() {
+    if (window.innerWidth <= 768) {
+        if (resPanel.parentElement !== topResults) topResults.appendChild(resPanel);
+    } else {
+        if (resPanel.parentElement !== sidebarTarget) sidebarTarget.appendChild(resPanel);
+    }
+    update(); // redraw on layout change
+}
+window.addEventListener('resize', adjustLayout);
+
+// ---- Helpers ----
+function toNumberFromInputString(str) {
+    if (typeof str !== 'string') return NaN;
+    // accept comma as decimal separator
+    const normalized = str.replace(',', '.').trim();
+    // allow leading/trailing plus/minus, scientific notation etc via parseFloat
+    const n = parseFloat(normalized);
+    return isFinite(n) ? n : NaN;
+}
+
+// clamp check (returns true if within range inclusive)
+function isWithinRange(val, rangeEl) {
+    const min = parseFloat(rangeEl.min);
+    const max = parseFloat(rangeEl.max);
+    return !(isNaN(min) || isNaN(max)) && (val >= min && val <= max);
+}
+
+// ---- Range -> Number synchronization (range always enforces limits) ----
+alphaRange.addEventListener('input', () => {
+    alphaNum.value = alphaRange.value;
+    lastValid.alpha = parseFloat(alphaRange.value);
+    update();
+});
+hRange.addEventListener('input', () => {
+    hNum.value = hRange.value;
+    lastValid.h = parseFloat(hRange.value);
+    update();
+});
+tiltRange.addEventListener('input', () => {
+    tiltNum.value = tiltRange.value;
+    lastValid.tilt = parseFloat(tiltRange.value);
+    update();
+});
+
+// ---- Number inputs handling: accept any numeric value, but only sync range if in-range ----
+function handleNumberInput(numEl, rangeEl, keyName) {
+    // input event: user typing
+    numEl.addEventListener('input', (e) => {
+        const raw = e.target.value;
+        const n = toNumberFromInputString(raw);
+
+        if (!isNaN(n)) {
+            // update last valid numeric (used for calculations)
+            lastValid[keyName] = n;
+            // if within slider limits, sync the slider; otherwise leave slider unchanged
+            if (isWithinRange(n, rangeEl)) {
+                rangeEl.value = n;
+            }
         }
-        update();
-    }
-
-    document.querySelectorAll('input').forEach(input => {
-        input.oninput = (e) => {
-            const id = e.target.id.replace('Range', '').replace('Num', '');
-            document.getElementById(id+'Range').value = e.target.value;
-            document.getElementById(id+'Num').value = e.target.value;
-            update();
-        };
+        // if NaN (empty or invalid), do not update lastValid — keep previous value used for drawing
+        update(); // always call update so user sees current drawing (based on lastValid)
     });
 
-// Auto-sélection du texte au clic (uniquement champs number)
-document.querySelectorAll('input[type="number"]').forEach(input => {
-    input.addEventListener('focus', function() {
-        this.select();
-    });
-});
-
-// Correction mobile : remonter le champ au focus
-document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('focus', function () {
+    // focus behavior (select + scroll on mobile)
+    numEl.addEventListener('focus', function() {
+        // select text to ease editing
+        try { this.select(); } catch (err) {}
+        // scroll into view after slight delay (keyboard popup)
         setTimeout(() => {
-            this.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
-            });
-        }, 300); // délai pour laisser le clavier apparaître
+            this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
     });
-});
 
-    window.onresize = adjustLayout;
+    // blur: normalize decimal comma to point for display (keeps user's digits but uses dot)
+    numEl.addEventListener('blur', (e) => {
+        const raw = e.target.value;
+        if (raw === '') return; // keep blank if user left it blank
+        const n = toNumberFromInputString(raw);
+        if (!isNaN(n)) {
+            // format minimally: keep raw's precision by avoiding toFixed; show as-is numeric
+            // but prefer a simple string representation
+            e.target.value = ('' + n);
+        }
+    });
+}
 
-    function update() {
-        const a = parseFloat(ui.alpha.value), h = parseFloat(ui.h.value), t = parseFloat(ui.tilt.value);
-        const aRad = a * Math.PI / 180, tRad = t * Math.PI / 180;
+handleNumberInput(alphaNum, alphaRange, 'alpha');
+handleNumberInput(hNum, hRange, 'h');
+handleNumberInput(tiltNum, tiltRange, 'tilt');
 
-        // Calcul des angles limites par rapport à l'axe h
-        const angleGauche = tRad - aRad/2;
-        const angleDroit = tRad + aRad/2;
+// ---- Calculation & drawing ----
+function update() {
+    // use lastValid numeric values for calculations (robust while user types)
+    const a = Number(lastValid.alpha);
+    const h = Number(lastValid.h);
+    const t = Number(lastValid.tilt);
 
-        let x1, x2;
-        let isInfinite = (angleGauche <= -Math.PI / 2 || angleDroit >= Math.PI / 2);
-        
-        // Coordonnées sur l'axe vertical du sol
-        x1 = (angleGauche <= -Math.PI / 2) ? 5000 : -h * Math.tan(angleGauche);
-        x2 = (angleDroit >= Math.PI / 2) ? -5000 : -h * Math.tan(angleDroit);
+    const aRad = a * Math.PI / 180;
+    const tRad = t * Math.PI / 180;
 
-        document.getElementById('resDiam').innerText = isInfinite ? "∞" : Math.abs(x2 - x1).toFixed(2) + "m";
-        document.getElementById('resDecal').innerText = (angleGauche <= -Math.PI / 2) ? "∞" : (-x1).toFixed(2) + "m";
+    const angleGauche = tRad - aRad / 2;
+    const angleDroit = tRad + aRad / 2;
 
-        if (isInfinite) resPanel.classList.add('infinite');
-        else resPanel.classList.remove('infinite');
+    let x1, x2;
+    const isInfinite = (angleGauche <= -Math.PI / 2 || angleDroit >= Math.PI / 2);
 
-        draw(h, tRad, x1, x2, isInfinite);
-    }   
+    x1 = (angleGauche <= -Math.PI / 2) ? 5000 : -h * Math.tan(angleGauche);
+    x2 = (angleDroit >= Math.PI / 2) ? -5000 : -h * Math.tan(angleDroit);
 
-    function draw(h, tRad, x1, x2, isInfinite) {
-        canvas.width = canvas.clientWidth; 
-        canvas.height = canvas.clientHeight;
-        
-        const scale = Math.min(canvas.width / (h + 5), canvas.height / 20);
-        const startX = 60; 
-        const centerY = canvas.height / 2;
-        const groundX = startX + (h * scale);
+    document.getElementById('resDiam').innerText = isInfinite ? "∞" : Math.abs(x2 - x1).toFixed(2) + "m";
+    document.getElementById('resDecal').innerText = (angleGauche <= -Math.PI / 2) ? "∞" : (-x1).toFixed(2) + "m";
 
-        ctx.clearRect(0,0, canvas.width, canvas.height);
+    if (isInfinite) resPanel.classList.add('infinite');
+    else resPanel.classList.remove('infinite');
 
-        // SOL
-        ctx.strokeStyle = "#444"; ctx.lineWidth = 1;
-        ctx.setLineDash([]);
-        ctx.beginPath(); ctx.moveTo(groundX, 0); ctx.lineTo(groundX, canvas.height); ctx.stroke();
+    draw(h, tRad, x1, x2, isInfinite);
+}
 
-        // AXE POINTILLÉ (h)
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        ctx.moveTo(startX, centerY);
-        ctx.lineTo(groundX, centerY);
-        ctx.stroke();
-        ctx.setLineDash([]);
+function draw(h, tRad, x1, x2, isInfinite) {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
 
-        // FAISCEAU
-        ctx.fillStyle = isInfinite ? "rgba(231, 76, 60, 0.45)" : "rgba(241, 196, 15, 0.35)";
-        ctx.beginPath();
-        ctx.moveTo(startX, centerY); 
-        // On utilise l'angle géométrique standard (Y vers le haut = négatif en canvas)
-        ctx.lineTo(groundX, centerY + (x1 * scale)); 
-        ctx.lineTo(groundX, centerY + (x2 * scale)); 
-        ctx.closePath();
-        ctx.fill();
+    const scale = Math.min(canvas.width / (h + 5), canvas.height / 20);
+    const startX = 60;
+    const centerY = canvas.height / 2;
+    const groundX = startX + (h * scale);
 
-        // PROJECTEUR
-        ctx.save();
-        ctx.translate(startX, centerY);
-        // On aligne la rotation du projecteur sur celle du faisceau
-        // Le -tRad compense l'inversion de l'axe Y du canvas
-        ctx.rotate(-tRad); 
-        
-        // Corps vers la gauche
-        ctx.fillStyle = "#333";
-        ctx.fillRect(-35, -12, 35, 24); 
-        
-        // Lentille jaune vers la droite (faisceau)
-        ctx.fillStyle = isInfinite ? "#e74c3c" : "#f1c40f";
-        ctx.fillRect(-2, -12, 4, 24); 
-        ctx.restore();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // TEXTE HAUTEUR
-        ctx.fillStyle = "#888";
-        ctx.font = "bold 13px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("h = " + h + "m", (startX + groundX) / 2, centerY - 15);
-    }
+    // SOL
+    ctx.strokeStyle = "#444"; ctx.lineWidth = 1;
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(groundX, 0); ctx.lineTo(groundX, canvas.height); ctx.stroke();
 
-    adjustLayout();
+    // AXE POINTILLÉ
+    ctx.strokeStyle = "rgba(255,255,255,0.2)";
+    ctx.setLineDash([5,5]);
+    ctx.beginPath(); ctx.moveTo(startX, centerY); ctx.lineTo(groundX, centerY); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // FAISCEAU
+    ctx.fillStyle = isInfinite ? "rgba(231,76,60,0.45)" : "rgba(241,196,15,0.35)";
+    ctx.beginPath();
+    ctx.moveTo(startX, centerY);
+    ctx.lineTo(groundX, centerY + (x1 * scale));
+    ctx.lineTo(groundX, centerY + (x2 * scale));
+    ctx.closePath();
+    ctx.fill();
+
+    // PROJECTEUR
+    ctx.save();
+    ctx.translate(startX, centerY);
+    ctx.rotate(-tRad);
+    ctx.fillStyle = "#333"; ctx.fillRect(-35, -12, 35, 24);
+    ctx.fillStyle = isInfinite ? "#e74c3c" : "#f1c40f";
+    ctx.fillRect(-2, -12, 4, 24);
+    ctx.restore();
+
+    // TEXTE HAUTEUR
+    ctx.fillStyle = "#888";
+    ctx.font = "bold 13px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("h = " + h + "m", (startX + groundX) / 2, centerY - 15);
+}
+
+// initialize layout and drawing
+adjustLayout();
 </script>
 </body>
 </html>
