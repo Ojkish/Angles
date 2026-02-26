@@ -376,11 +376,12 @@ recenterProjBtn.addEventListener('click', () => {
 /* === Décalage zéro (d = 0) === */
 decalZeroBtn.addEventListener('click', () => {
 
-  // On met la valeur du slider
-  decalRange.value = 0;
+      animateDecalTo(0, 250);
 
-  // On déclenche exactement le même comportement
-  decalRange.dispatchEvent(new Event('input', { bubbles: true }));
+ setTimeout(() => {
+    decalRange.dispatchEvent(new Event('input', { bubbles: true }));
+  }, 250);
+
 
 });
 /* === Core calculation & drawing ===
