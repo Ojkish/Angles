@@ -187,6 +187,7 @@ const lastValid = {
 
 /* === animation control === */
 let currentAnim = null; // holds { cancel: ()=>void } or null
+let autoCenter = true;
 
 /* === responsive placement === */
 function adjustLayout(){
@@ -227,15 +228,34 @@ alphaRange.addEventListener('input', () => {
   cancelCurrentAnimation();
   alphaNum.value = alphaRange.value;
   lastValid.alpha = parseFloat(alphaRange.value);
+
+  if(autoCenter){
+    const aRad = lastValid.alpha * Math.PI / 180;
+    const newD = lastValid.h * Math.tan(-aRad/2);
+    lastValid.decal = newD;
+    decalNum.value = newD;
+    if (isWithinRange(newD, decalRange)) decalRange.value = newD;
+  }
+
   update();
 });
 hRange.addEventListener('input', () => {
   cancelCurrentAnimation();
   hNum.value = hRange.value;
   lastValid.h = parseFloat(hRange.value);
+
+  if(autoCenter){
+    const aRad = lastValid.alpha * Math.PI / 180;
+    const newD = lastValid.h * Math.tan(-aRad/2);
+    lastValid.decal = newD;
+    decalNum.value = newD;
+    if (isWithinRange(newD, decalRange)) decalRange.value = newD;
+  }
+
   update();
 });
 decalRange.addEventListener('input', () => {
+  autoCenter = false; // <-- ajouté
   cancelCurrentAnimation();
   decalNum.value = decalRange.value;
   lastValid.decal = parseFloat(decalRange.value);
@@ -247,6 +267,10 @@ function bindNumberInput(numEl, rangeEl, keyName){
   numEl.addEventListener('input', (e) => {
     // user typing -> cancel animation
     cancelCurrentAnimation();
+
+     if(keyName === 'decal'){
+    autoCenter = false; // <-- ajouté
+  }
 
     const raw = e.target.value;
     const n = toNumberFromInputString(raw);
@@ -338,6 +362,8 @@ function animateDecalTo(target, duration = 250){
 
 /* === Recentrer le projecteur (tilt = 0) === */
 recenterProjBtn.addEventListener('click', () => {
+      autoCenter = true;
+
   // compute d that makes tilt = 0
   const a = Number(lastValid.alpha);
   const h = Number(lastValid.h);
@@ -349,9 +375,14 @@ recenterProjBtn.addEventListener('click', () => {
 
 /* === Décalage zéro (d = 0) === */
 decalZeroBtn.addEventListener('click', () => {
-  animateDecalTo(0, 250);
-});
 
+  // On met la valeur du slider
+  decalRange.value = 0;
+
+  // On déclenche exactement le même comportement
+  decalRange.dispatchEvent(new Event('input', { bubbles: true }));
+
+});
 /* === Core calculation & drawing ===
    User controls decal 'd'. From d, a and h we compute:
      angleGauche = atan2(d, h)
